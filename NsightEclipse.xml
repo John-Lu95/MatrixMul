@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <!DOCTYPE entry SYSTEM "SamplesInfo.dtd">
 <entry>
-  <name>matrixMul</name>
+  <name>TiledMatrixMul</name>
   <cuda_api_list>
     <toolkit>cudaEventCreate</toolkit>
     <toolkit>cudaEventRecord</toolkit>
@@ -33,7 +33,7 @@
   <librarypaths>
   </librarypaths>
   <nsight_eclipse>true</nsight_eclipse>
-  <primary_file>matrixMul.cu</primary_file>
+  <primary_file>TiledMatrixMul.cu</primary_file>
   <scopes>
     <scope>1:CUDA Basic Topics</scope>
     <scope>3:Linear Algebra</scope>

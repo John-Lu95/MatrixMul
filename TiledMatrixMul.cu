@@ -223,7 +223,7 @@ int MatrixMultiply(int argc, char **argv,
     // Create and start timer
     printf("Computing result using CUDA Kernel...\n");
 
-    // Performs warmup operation using matrixMul CUDA kernel
+    // Performs warmup operation using TiledMatrixMul CUDA kernel
     if (block_size == 16) {
         MatrixMulCUDA<16> <<< grid, threads >>>(d_C, d_A, d_B,
                                                 dimsA.x, dimsB.x);

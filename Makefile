@@ -275,7 +275,7 @@ endif
 # Target rules
 all: build
 
-build: matrixMul
+build: TiledMatrixMul
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -284,19 +284,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-matrixMul.o:matrixMul.cu
+TiledMatrixMul.o:TiledMatrixMul.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-matrixMul: matrixMul.o
+TiledMatrixMul: TiledMatrixMul.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./matrixMul
+	$(EXEC) ./TiledMatrixMul
 
 clean:
-	rm -f matrixMul matrixMul.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/matrixMul
+	rm -f TiledMatrixMul TiledMatrixMul.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/TiledMatrixMul
 
 clobber: clean
