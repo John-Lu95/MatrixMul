@@ -26,6 +26,7 @@
 // System includes
 #include <stdio.h>
 #include <assert.h>
+#include<string> //z
 
 // CUDA runtime
 #include <cuda_runtime.h>
@@ -36,16 +37,17 @@
 
 #include<stdlib.h>
 
+
 /**
  * Matrix multiplication (CUDA Kernel) on the device: C = A * B
  * wA is A's width and wB is B's width
  */
 template <int BLOCK_SIZE> __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) 
 {
-    if(wA ! =wB) //z
+    if(wA!=wB) //z
     {
-        cout<<"A and B are not both square matrix"<<endl; //z
-        return -1; //z
+        printf("A and B are not both square matrix\n"); //z
+        assert(0); //z
     }
     // Block index
     int bx = blockIdx.x;
@@ -59,7 +61,7 @@ template <int BLOCK_SIZE> __global__ void MatrixMulCUDA(float *C, float *A, floa
     int aBegin = wA * BLOCK_SIZE * by;
 
     // Index of the last sub-matrix of A processed by the block
-    int aEnd   = aBegin + wA - 1;
+    //z int aEnd   = aBegin + wA - 1;
 
     // Step size used to iterate through the sub-matrices of A
     int aStep  = BLOCK_SIZE;
@@ -79,9 +81,10 @@ template <int BLOCK_SIZE> __global__ void MatrixMulCUDA(float *C, float *A, floa
     int XY_BLOCKS = (BLOCK_SIZE+row-1) /BLOCK_SIZE; //z
     // Loop over all the sub-matrices of A and B
     // required to compute the block sub-matrix
-    for (int a = aBegin, b = bBegin;
-            a <= aEnd;
-            a += aStep, b += bStep) {
+    //z for (int a = aBegin, b = bBegin;
+    //z        a <= aEnd;
+    //z        a += aStep, b += bStep) {
+    int a = aBegin, b = bBegin; //z
         // Declaration of the shared memory array As used to
         // store the sub-matrix of A
         __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
@@ -108,12 +111,13 @@ template <int BLOCK_SIZE> __global__ void MatrixMulCUDA(float *C, float *A, floa
             }
             if((i*BLOCK_SIZE+ty)<row &&(bx*BLOCK_SIZE+tx)<row) //z
             {
-                Bs[ty][tx] = B[b + row * ty + tx] //z
+                Bs[ty][tx] = B[b + row * ty + tx];//z
             }
             else{
                 Bs[ty][tx] = 0; //z
             }
-        }
+            a += aStep; //z
+            b += bStep; //z
 
         // Synchronize to make sure the matrices are loaded
         __syncthreads();
@@ -131,7 +135,25 @@ template <int BLOCK_SIZE> __global__ void MatrixMulCUDA(float *C, float *A, floa
         // computation is done before loading two new
         // sub-matrices of A and B in the next iteration
         __syncthreads();
-    }
+        }
+
+        //z // Synchronize to make sure the matrices are loaded
+        //z __syncthreads();
+
+        // Multiply the two matrices together;
+        // each thread computes one element
+        // of the block sub-matrix
+//z #pragma unroll
+
+    //z    for (int k = 0; k < BLOCK_SIZE; ++k) {
+       //z     Csub += As[ty][k] * Bs[k][tx];
+        //z }
+
+        // Synchronize to make sure that the preceding
+        // computation is done before loading two new
+        // sub-matrices of A and B in the next iteration
+       //z  __syncthreads();
+    //z }
 
     // Write the block sub-matrix to device memory;
     // each thread writes one element
@@ -196,7 +218,7 @@ int MatrixMultiply(int argc, char **argv,
     dim3 threads(block_size, block_size);
     //z dim3 grid(dimsB.x / threads.x, dimsA.y / threads.y);
 
-    dim3 grid((dimsB.x+block_size-1)/threads.x , (dimsA+block_size-1)/threads.y)
+    dim3 grid((dimsB.x+block_size-1)/threads.x , (dimsA.y+block_size-1)/threads.y);
 
     // Create and start timer
     printf("Computing result using CUDA Kernel...\n");
@@ -310,13 +332,13 @@ int MatrixMultiply(int argc, char **argv,
  */
 int main(int argc, char **argv) {
     
-    string Argv1(argv[1]); //z
-    string Argv2(argv[2]); //z
-    int row = atoi(Argv2); //z
+    std::string Argv1(argv[1]); //z
+    std::string Argv2(argv[2]); //z
+    int row = atoi(argv[2]); //z
 
-    if(argc!=3 || strcmp(Argv1,"-i"!=0 || row <=0)){ //z
-        cout<<"- Usage: ./TiledMatrixMul -i <rowDim>" <<endl; //z
-        if(row<=0) cout<<"- Usage: <rowDim> can't less than 1"<<endl; //z
+    if(argc!=3 || strcmp(argv[1],"-i")!=0 || row <=0){ //z
+        printf("- Usage: ./TiledMatrixMul -i <rowDim>\n"); //z
+        if(row<=0) printf("- Usage: <rowDim> can't less than 1\n"); //z
         return -1; //z
     } //z
 
